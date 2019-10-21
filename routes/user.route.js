@@ -11,7 +11,7 @@ router.get("/get/:email", userController.get);
 
 router.delete("/delete/:email", userController.delete);
 
-router.post("/signup", userController.add);
+router.post("/signup", userController.signup);
 
 router.post("/login", userController.login);
 

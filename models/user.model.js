@@ -41,8 +41,8 @@ let userSchema = new Schema({
 
 userSchema.path("email").validate(function(email) {
   var emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-  return emailRegex.test(email.text); // Assuming email has a text attribute
-}, "The e-mail field cannot be empty.");
+  return emailRegex.test(email); // Assuming email has a text attribute
+}, "Invalid email");
 
 userSchema.pre("save", function(next) {
   this.password = bcrypt.hashSync(this.password, saltRounds);

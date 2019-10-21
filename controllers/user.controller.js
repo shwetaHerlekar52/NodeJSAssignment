@@ -1,7 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 
-exports.add = (req, res) => {
+exports.add = async (req, res) => {
   console.log(`in function add`);
   if (req.session.user) {
     let user = new User({
@@ -10,7 +10,7 @@ exports.add = (req, res) => {
       password: req.body.password,
       dob: req.body.dob
     });
-    user
+    await user
       .save()
       .then(data => {
         return res.send(data);
@@ -20,13 +20,34 @@ exports.add = (req, res) => {
           message: err.message || "Some error occurred while creating the User."
         });
       });
+  } else {
+    return res.status(200).send({
+      message: "Please login to add new user"
+    });
   }
-  return res.status(200).send({
-    message: "Please login to add new user"
-  });
 };
 
-exports.modify = (req, res) => {
+exports.signup = (req, res) => {
+  console.log("in function signup");
+  let user = new User({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    dob: req.body.dob
+  });
+  user
+    .save()
+    .then(data => {
+      return res.send(data);
+    })
+    .catch(err => {
+      return res.status(500).send({
+        message: err.message || "Some error occurred while creating the User."
+      });
+    });
+};
+
+exports.modify = async (req, res) => {
   console.log(`in function modify`);
   if (req.session.user) {
     if (!req.body) {
@@ -34,7 +55,7 @@ exports.modify = (req, res) => {
         message: "User details can not be empty"
       });
     }
-    User.findOneAndUpdate(
+    await User.findOneAndUpdate(
       {
         email: req.params.email
       },
@@ -49,7 +70,7 @@ exports.modify = (req, res) => {
             message: "User not found with email " + req.params.email
           });
         }
-        res.send(user);
+        return res.send(user);
       })
       .catch(err => {
         console.log(`${err}`);
@@ -57,23 +78,24 @@ exports.modify = (req, res) => {
           message: "Error updating user with email " + req.params.email
         });
       });
+  } else {
+    return res.status(200).send({
+      message: "Please login to modify user"
+    });
   }
-  return res.status(200).send({
-    message: "Please login to modify user"
-  });
 };
 
-exports.delete = (req, res) => {
+exports.delete = async (req, res) => {
   console.log(`in function delete`);
   if (req.session.user) {
-    User.findOneAndRemove({ email: req.params.email })
+    await User.findOneAndRemove({ email: req.params.email })
       .then(user => {
         if (!user) {
           return res.status(404).send({
             message: "User not found with email " + req.params.email
           });
         }
-        res.send({ message: "User deleted successfully!" });
+        return res.send({ message: "User deleted successfully!" });
       })
       .catch(err => {
         console.log(`${err}`);
@@ -81,38 +103,41 @@ exports.delete = (req, res) => {
           message: "Could not delete user with email " + req.params.email
         });
       });
+  } else {
+    return res.status(200).send({
+      message: "Please login to delete user"
+    });
   }
-  return res.status(200).send({
-    message: "Please login to delete user"
-  });
 };
 
-exports.get = (req, res) => {
+exports.get = async (req, res) => {
   console.log(`in function get`);
   if (req.session.user) {
-    User.find({ email: req.params.email })
+    await User.findOne({ email: req.params.email })
       .then(user => {
         if (!user) {
           return res.status(404).send({
             message: "Note not found with email " + req.params.email
           });
         }
-        res.send(user);
+        return res.send(user);
       })
       .catch(err => {
-        console.log(`${err.message}`);
+        console.log(`${err}`);
         return res.status(500).send({
-          message: "Error retrieving user with email " + req.params.email
+          message: "Could not delete user with email " + req.params.email
         });
       });
+  } else {
+    return res.status(200).send({
+      message: "Please login to get user"
+    });
   }
-  return res.status(200).send({
-    message: "Please login to get user"
-  });
 };
 
 exports.login = (req, res) => {
   console.log("in function login");
+  console.log(req.session.user);
   User.findOne({ email: req.body.email })
     .then(user => {
       if (user) {
