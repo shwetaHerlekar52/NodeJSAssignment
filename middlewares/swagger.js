@@ -1,4 +1,3 @@
-const constants = require("../constant");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 
@@ -10,7 +9,7 @@ const options = {
     },
     basePath: "/"
   },
-  apis: ["../routes/*.js"]
+  apis: ["./routes/*.js"]
 };
 const specs = swaggerJsdoc(options);
 
